@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🔥Chakra Nature Quiz🌍</title>
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  body {
+    font-family: Arial, sans-serif;
+    background-color: #1e1e2f;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+  }
+  .container {
+    background-color: #ffffff;
+    border-radius: 12px;
+    padding: 30px;
+    max-width: 450px;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  }
+  h1 {
+    color: #ff6600;
+    margin-bottom: 20px;
+  }
+  h2 {
+    color: #333;
+    margin-bottom: 15px;
+  }
+  p {
+    color: #555;
+    margin-bottom: 15px;
+    line-height: 1.5;
+  }
+  .hidden {
+    display: none;
+  }
+  .btn {
+    background-color: #ff6600;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+  }
+  .btn:hover {
+    background-color: #e65c00;
+  }
+  .option-btn {
+    display: block;
+    width: 100%;
+    background-color: #f4f4f4;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 10px;
+    text-align: left;
+    font-size: 15px;
+    cursor: pointer;
+  }
+  .option-btn:hover {
+    background-color: #ffe0cc;
+    border-color: #ff6600;
+  }
+  #question-counter {
+    font-size: 14px;
+    color: #999;
+    margin-bottom: 8px;
+  }
+  .progress-bar {
+    background-color: #eee;
+    border-radius: 10px;
+    height: 10px;
+    margin-bottom: 20px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    background-color: #ff6600;
+    height: 100%;
+    width: 0%;
+    transition: width 0.3s;
+  }
+  .result-emoji {
+    font-size: 60px;
+    margin-bottom: 10px;
+  }
+  .bar-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+    font-size: 13px;
+    text-align: left;
+  }
+  .bar-label {
+    width: 100px;
+  }
+  .bar-container {
+    flex: 1;
+    background-color: #eee;
+    border-radius: 6px;
+    height: 10px;
+    margin: 0 8px;
+    overflow: hidden;
+  }
+  .bar-fill {
+    height: 100%;
+  }
+  .bar-percent {
+    width: 35px;
+    text-align: right;
+  }
+  #previous-result {
+    background-color: #fff4ec;
+    border: 1px solid #ffd1a8;
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 20px;
+    font-size: 14px;
+  }
+  .credit {
+    font-size: 12px;
+    color: #aaa;
+    margin-top: 20px;
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+    <h1>Chakra Nature Quiz</h1>
+    <div id="previous-result" class="hidden">
+      <p id="previous-text"></p>
+      <button id="retake-btn" class="btn">Take Quiz Again</button>
+    </div>
+    <div id="start-screen">
+      <p>Answer 10 quick questions to discover your chakra nature: Fire, Wind, Water, Earth, or Lightning!</p>
+      <button id="start-btn" class="btn">Start Quiz</button>
+      <p class="credit">Created by Parmita Rajthala</p>
+    </div>
+    <div id="quiz-screen" class="hidden">
+      <p id="question-counter"></p>
+      <div class="progress-bar">
+        <div id="progress-fill" class="progress-fill"></div>
+      </div>
+      <h2 id="question-text"></h2>
+      <div id="options-container"></div>
+    </div>
+    <div id="result-screen" class="hidden">
+      <div id="result-emoji" class="result-emoji"></div>
+      <h2 id="result-title"></h2>
+      <p id="result-description"></p>
+      <div id="score-breakdown"></div>
+      <button id="restart-btn" class="btn">Take Quiz Again</button>
+    </div>
+  </div>
+<script>
+  const questions = [
+    {
+      question: "Your teammate is surrounded and outnumbered. What's your first move?",
+      options: [
+        { text: "Charge straight in and overwhelm them with raw force", type: "fire" },
+        { text: "Create an opening and reposition before they react", type: "wind" },
+        { text: "Hold back, read the fight, strike at the right moment", type: "water" },
+        { text: "Throw up a defense first, attack once everyone's safe", type: "earth" },
+        { text: "Take out the strongest enemy in one decisive strike", type: "lightning" }
+      ]
+    },
+    {
+      question: "It's late at night and you're training alone. What are you working on?",
+      options: [
+        { text: "Pushing past exhaustion... one more set, no matter what", type: "fire" },
+        { text: "Footwork and evasive movement, staying light on your feet", type: "wind" },
+        { text: "The same technique, over and over, until it's flawless", type: "water" },
+        { text: "Stamina and endurance... slow, steady progress", type: "earth" },
+        { text: "Reaction time, until your body moves before you think", type: "lightning" }
+      ]
+    },
+    {
+      question: "Pick a place to recover between missions.",
+      options: [
+        { text: "A loud ramen stand, full of people and noise", type: "fire" },
+        { text: "An open hilltop where the wind never stops", type: "wind" },
+        { text: "A quiet spot by the river, just listening to the water", type: "water" },
+        { text: "A familiar room with thick walls and a closed door", type: "earth" },
+        { text: "Somewhere high up, watching storm clouds roll in", type: "lightning" }
+      ]
+    },
+    {
+      question: "Your sensei hands you a mission above your rank, solo. Your first reaction?",
+      options: [
+        { text: "\"Finally\" — exactly the chance you wanted", type: "fire" },
+        { text: "Curiosity — you'll figure it out as you go", type: "wind" },
+        { text: "Calm — you've already planned for this", type: "water" },
+        { text: "Steady focus — you trust the prep you've put in", type: "earth" },
+        { text: "Impatience — let's just get this done", type: "lightning" }
+      ]
+    },
+    {
+      question: "If you could master one kind of technique, which calls to you?",
+      options: [
+        { text: "Something that burns through anything in its path", type: "fire" },
+        { text: "Something fast enough to cut the air itself", type: "wind" },
+        { text: "Something that bends and adapts to any shape", type: "water" },
+        { text: "Something so solid nothing can break through it", type: "earth" },
+        { text: "Something faster than the eye can follow", type: "lightning" }
+      ]
+    },
+    {
+      question: "You just lost a fight you were sure you'd win. What now?",
+      options: [
+        { text: "Get back up immediately — angrier, more determined", type: "fire" },
+        { text: "Shrug it off and try a completely different approach", type: "wind" },
+        { text: "Sit with it quietly and figure out what went wrong", type: "water" },
+        { text: "Let it sting, then use it to train harder", type: "earth" },
+        { text: "Replay every second until you find the gap", type: "lightning" }
+      ]
+    },
+    {
+      question: "Pick the weather that feels most like home.",
+      options: [
+        { text: "Blazing summer heat", type: "fire" },
+        { text: "A breezy autumn afternoon", type: "wind" },
+        { text: "Soft, steady rain", type: "water" },
+        { text: "Still, heavy winter snow", type: "earth" },
+        { text: "A sudden thunderstorm rolling in", type: "lightning" }
+      ]
+    },
+    {
+      question: "A rival just surpassed you in skill. How do you respond?",
+      options: [
+        { text: "Train harder, right now, before the feeling fades", type: "fire" },
+        { text: "Stay relaxed — you'll catch up your own way", type: "wind" },
+        { text: "Study them closely and learn from their moves", type: "water" },
+        { text: "Keep training quietly, no need to rush", type: "earth" },
+        { text: "Challenge them to a rematch right away", type: "lightning" }
+      ]
+    },
+    {
+      question: "Which color do you find yourself drawn to?",
+      options: [
+        { text: "Red or orange", type: "fire" },
+        { text: "Green", type: "wind" },
+        { text: "Blue", type: "water" },
+        { text: "Brown or yellow", type: "earth" },
+        { text: "Purple or pale gold", type: "lightning" }
+      ]
+    },
+    {
+      question: "What would your closest friends say about you?",
+      options: [
+        { text: "\"Never knows when to quit, even when it's hopeless\"", type: "fire" },
+        { text: "\"Always finds a way around the problem\"", type: "wind" },
+        { text: "\"The calm one — always thinking ahead\"", type: "water" },
+        { text: "\"The one we can always count on\"", type: "earth" },
+        { text: "\"Gone before you even notice they moved\"", type: "lightning" }
+      ]
+    }
+  ];
+  const natureInfo = {
+    fire: {
+      emoji: "🔥",
+      name: "Fire Release",
+      color: "#ff5733",
+      description: "You're bold and determined. Once you set your mind on something, nothing stops you. You'd rather fight head-on than wait around."
+    },
+    wind: {
+      emoji: "🌪️",
+      name: "Wind Release",
+      color: "#2ecc71",
+      description: "You're adaptable and quick thinking. You find creative solutions and always land on your feet, no matter what happens."
+    },
+    water: {
+      emoji: "💧",
+      name: "Water Release",
+      color: "#3498db",
+      description: "You're calm and thoughtful. You like to plan ahead, stay patient, and figure things out before you act."
+    },
+    earth: {
+      emoji: "🪨",
+      name: "Earth Release",
+      color: "#a0703a",
+      description: "You're steady and dependable. People know they can count on you, and you don't give up even when things get tough."
+    },
+    lightning: {
+      emoji: "⚡",
+      name: "Lightning Release",
+      color: "#f1c40f",
+      description: "You're fast and sharp. You make quick decisions and don't waste time once you know what needs to be done."
+    }
+  };
+  const natureKeys = ["fire", "wind", "water", "earth", "lightning"];
+  let currentQuestion = 0;
+  let scores = { fire: 0, wind: 0, water: 0, earth: 0, lightning: 0 };
+  const startScreen = document.getElementById("start-screen");
+  const quizScreen = document.getElementById("quiz-screen");
+  const resultScreen = document.getElementById("result-screen");
+  const previousResult = document.getElementById("previous-result");
+
+  const questionCounter = document.getElementById("question-counter");
+  const progressFill = document.getElementById("progress-fill");
+  const questionText = document.getElementById("question-text");
+  const optionsContainer = document.getElementById("options-container");
+  function showQuestion() {
+    const q = questions[currentQuestion];
+    questionCounter.textContent = "Question " + (currentQuestion + 1) + " of " + questions.length;
+    questionText.textContent = q.question;
+    const progressPercent = (currentQuestion / questions.length) * 100;
+    progressFill.style.width = progressPercent + "%";
+    optionsContainer.innerHTML = "";
+    q.options.forEach(function (option) {
+      const btn = document.createElement("button");
+      btn.classList.add("option-btn");
+      btn.textContent = option.text;
+      btn.addEventListener("click", function () {
+        selectAnswer(option.type);
+      });
+      optionsContainer.appendChild(btn);
+    });
+  }
+  function selectAnswer(type) {
+    scores[type] = scores[type] + 1;
+    currentQuestion = currentQuestion + 1;
+    if (currentQuestion < questions.length) {
+      showQuestion();
+    } else {
+      progressFill.style.width = "100%";
+      finishQuiz();
+    }
+  }
+  function finishQuiz() {
+    quizScreen.classList.add("hidden");
+    let resultType = natureKeys[0];
+    for (let i = 0; i < natureKeys.length; i++) {
+      const key = natureKeys[i];
+      if (scores[key] > scores[resultType]) {
+        resultType = key;
+      }
+    }
+    showResult(resultType);
+    saveResult(resultType);
+  }
+  function showResult(type) {
+    const info = natureInfo[type];
+    document.getElementById("result-emoji").textContent = info.emoji;
+    const titleEl = document.getElementById("result-title");
+    titleEl.textContent = info.name;
+    titleEl.style.color = info.color;
+    document.getElementById("result-description").textContent = info.description;
+    renderBreakdown();
+    resultScreen.classList.remove("hidden");
+  }
+  function renderBreakdown() {
+    const breakdown = document.getElementById("score-breakdown");
+    breakdown.innerHTML = "";
+    let total = 0;
+    for (let i = 0; i < natureKeys.length; i++) {
+      total = total + scores[natureKeys[i]];
+    }
+    natureKeys.forEach(function (key) {
+      const info = natureInfo[key];
+      const percent = Math.round((scores[key] / total) * 100);
+      const row = document.createElement("div");
+      row.classList.add("bar-row");
+      row.innerHTML =
+        '<span class="bar-label">' + info.emoji + " " + info.name + "</span>" +
+        '<div class="bar-container">' +
+          '<div class="bar-fill" style="width: ' + percent + '%; background-color: ' + info.color + ';"></div>' +
+        "</div>" +
+        '<span class="bar-percent">' + percent + "%</span>";
+      breakdown.appendChild(row);
+    });
+  }
+  function saveResult(type) {
+    const data = {
+      type: type,
+      scores: scores,
+      date: new Date().toLocaleDateString()
+    };
+    localStorage.setItem("chakraResult", JSON.stringify(data));
+  }
+  function loadPreviousResult() {
+    const saved = localStorage.getItem("chakraResult");
+    if (!saved) return;
+    const data = JSON.parse(saved);
+    const info = natureInfo[data.type];
+    document.getElementById("previous-text").textContent =
+      "Last time, your chakra nature was " + info.emoji + " " + info.name + " (on " + data.date + ")";
+    previousResult.classList.remove("hidden");
+  }
+  function restartQuiz() {
+    currentQuestion = 0;
+    scores = { fire: 0, wind: 0, water: 0, earth: 0, lightning: 0 };
+    resultScreen.classList.add("hidden");
+    previousResult.classList.add("hidden");
+    startScreen.classList.remove("hidden");
+  }
+  document.getElementById("start-btn").addEventListener("click", function () {
+    startScreen.classList.add("hidden");
+    previousResult.classList.add("hidden");
+    quizScreen.classList.remove("hidden");
+    showQuestion();
+  });
+  document.getElementById("restart-btn").addEventListener("click", restartQuiz);
+  document.getElementById("retake-btn").addEventListener("click", restartQuiz);
+  loadPreviousResult();
+
+</script>
+</body>
+</html>
